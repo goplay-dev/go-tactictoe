@@ -1,6 +1,12 @@
-package main
+package tictactoe
 
-var playerSteps = map[player][]*step{}
+type Dimension struct {
+	Current int32
+	Min     int32
+	Max     int32
+}
+
+var playerSteps = map[player][]*Step{}
 
 type player int32
 
@@ -9,14 +15,14 @@ const (
 	O
 )
 
-type step struct {
+type Step struct {
 	CX int32
 	CY int32
 }
 
 type playerStep struct {
 	Player *player `json:"user"`
-	Step   *step   `json:"step"`
+	Step   *Step   `json:"step"`
 }
 
 func (p player) String() string {
@@ -28,4 +34,15 @@ func (p player) String() string {
 	default:
 		return "-"
 	}
+}
+
+type ValidateStepReq struct {
+	Step1 *Step
+	Step2 *Step
+}
+
+type GameConfig struct {
+	Dimension      *Dimension
+	AvailableSteps []*Step
+	WinSteps       [][]*Step
 }
