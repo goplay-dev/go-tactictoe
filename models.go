@@ -1,9 +1,9 @@
 package tictactoe
 
 type Dimension struct {
-	Current int32
-	Min     int32
-	Max     int32
+	Current int32 `json:"current"`
+	Min     int32 `json:"min"`
+	Max     int32 `json:"max"`
 }
 
 var playerSteps = map[player][]*Step{}
