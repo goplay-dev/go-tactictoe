@@ -8,5 +8,9 @@
     - win steps
     - validate player step
     - get actual positions
-- v1.1.1 (Sun 01 Apr 2024)
+- v1.1.1 (Mon 01 Apr 2024)
   - refactor (move `Console Play` to example)
+- v2.0.0-alpha (Mon 01 Apr 2024)
+  - refactor
+    - Remove abstraction layer (interface)
+    - add new struct type for result and request

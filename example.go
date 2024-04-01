@@ -8,7 +8,11 @@ import (
 )
 
 func ConsolePlay(ctx context.Context) {
-INIT:
+	var currentPlayer Player
+	var stepCoord string
+	var stepCX int32
+	var stepCY int32
+	var playerSteps PlayerSteps
 	var dimension = &Dimension{
 		Current: 25,
 		Min:     3,
@@ -18,22 +22,16 @@ INIT:
 	fmt.Print(fmt.Sprintf("Input Dimension (%d - %d): ", dimension.Min, dimension.Max))
 	fmt.Scanf("%d", &dimension.Current)
 
-	game, err := InitGame(ctx, &GameConfig{
-		Dimension: dimension,
-	})
-	if err != nil {
-		fmt.Println(err)
-		goto INIT
-	}
-
 	fmt.Println()
 	fmt.Println("==================================================")
 	fmt.Println()
 
-	var currentPlayer player
-	var stepCoord string
-	var stepCX int32
-	var stepCY int32
+	availableSteps := SetupAvailableSteps(ctx, dimension.Current)
+	winSteps := SetupWinSteps(ctx, &GameConfig{
+		Dimension:      dimension,
+		AvailableSteps: availableSteps,
+	})
+
 INPUTPLAYER:
 	fmt.Print("Input Player (0 or 1): ")
 	fmt.Scanf("%d", &currentPlayer)
@@ -44,7 +42,10 @@ INPUTPLAYER:
 	}
 
 STEP:
-	PrintActualPos(ctx, game.GetActualPos(ctx), dimension.Current)
+	PrintActualPos(ctx, GetActualPos(ctx, &GetActualPosReq{
+		Dimension:   dimension,
+		PlayerSteps: playerSteps,
+	}), dimension.Current)
 
 	fmt.Print(fmt.Sprintf("(player %s) Input CX,CY step (0 - %d) (ex: 1,2): ",
 		currentPlayer.String(), dimension.Current-1))
@@ -72,18 +73,34 @@ STEP:
 		goto STEP
 	}
 
-	stepsReq := &playerStep{
-		Player: &currentPlayer,
-		Step: &Step{
-			CX: stepCX,
-			CY: stepCY,
-		},
+	step := &Step{
+		CX: stepCX,
+		CY: stepCY,
 	}
 
-	if game.ValidatePlayerStep(ctx, stepsReq) {
-		game.SaveStep(ctx, stepsReq, playerSteps)
-		if game.CheckWinStep(ctx, stepsReq) {
-			PrintActualPos(ctx, game.GetActualPos(ctx), dimension.Current)
+	playerStep := &PlayerStep{
+		Player: &currentPlayer,
+		Step:   step,
+	}
+
+	if ValidatePlayerStep(ctx, &ValidatePlayerStepReq{
+		PlayerStep:     playerStep,
+		AvailableSteps: availableSteps,
+	}) {
+		playerSteps = SavePlayerStep(ctx, &PlayerStepReq{
+			PlayerStep:  playerStep,
+			PlayerSteps: playerSteps,
+		})
+		if CheckWinStep(ctx, &CheckWinStepReq{
+			PlayerStep:  playerStep,
+			WinSteps:    winSteps,
+			PlayerSteps: playerSteps,
+			Dimension:   dimension,
+		}) {
+			PrintActualPos(ctx, GetActualPos(ctx, &GetActualPosReq{
+				Dimension:   dimension,
+				PlayerSteps: playerSteps,
+			}), dimension.Current)
 			fmt.Println(fmt.Sprintf("%s Win !!!", currentPlayer.String()))
 			return
 		}

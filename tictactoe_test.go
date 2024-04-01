@@ -354,37 +354,30 @@ func Test_gameConfig_ValidatePlayerStep(t *testing.T) {
 		GameConfig *GameConfig
 	}
 	type args struct {
-		ctx   context.Context
-		pStep *playerStep
+		ctx context.Context
+		req *ValidatePlayerStepReq
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   bool
+		name string
+		args args
+		want bool
 	}{
 		{
 			name: "return false",
-			fields: fields{GameConfig: &GameConfig{
-				Dimension: &Dimension{
-					Current: 3,
-					Min:     3,
-					Max:     25,
-				},
-				AvailableSteps: [][]*Step{
-					{{0, 0}, {1, 0}, {2, 0}},
-					{{0, 1}, {2, 1}},
-					{{0, 2}, {1, 2}, {2, 2}},
-				},
-				WinSteps: nil,
-			}},
 			args: args{
 				ctx: context.Background(),
-				pStep: &playerStep{
-					Player: &playerMark,
-					Step: &Step{
-						CX: 1,
-						CY: 1,
+				req: &ValidatePlayerStepReq{
+					PlayerStep: &PlayerStep{
+						Player: &playerMark,
+						Step: &Step{
+							CX: 1,
+							CY: 1,
+						},
+					},
+					AvailableSteps: AvailableSteps{
+						{{0, 0}, {1, 0}, {2, 0}},
+						{{0, 1}, {2, 1}},
+						{{0, 2}, {1, 2}, {2, 2}},
 					},
 				},
 			},
@@ -392,26 +385,20 @@ func Test_gameConfig_ValidatePlayerStep(t *testing.T) {
 		},
 		{
 			name: "return true",
-			fields: fields{GameConfig: &GameConfig{
-				Dimension: &Dimension{
-					Current: 3,
-					Min:     3,
-					Max:     25,
-				},
-				AvailableSteps: [][]*Step{
-					{{0, 0}, {1, 0}, {2, 0}},
-					{{0, 1}, {2, 1}},
-					{{0, 2}, {1, 2}, {2, 2}},
-				},
-				WinSteps: nil,
-			}},
 			args: args{
 				ctx: context.Background(),
-				pStep: &playerStep{
-					Player: &playerMark,
-					Step: &Step{
-						CX: 2,
-						CY: 0,
+				req: &ValidatePlayerStepReq{
+					PlayerStep: &PlayerStep{
+						Player: &playerMark,
+						Step: &Step{
+							CX: 2,
+							CY: 0,
+						},
+					},
+					AvailableSteps: AvailableSteps{
+						{{0, 0}, {1, 0}, {2, 0}},
+						{{0, 1}, {2, 1}},
+						{{0, 2}, {1, 2}, {2, 2}},
 					},
 				},
 			},
@@ -420,10 +407,7 @@ func Test_gameConfig_ValidatePlayerStep(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g := &gameConfig{
-				GameConfig: tt.fields.GameConfig,
-			}
-			if got := g.ValidatePlayerStep(tt.args.ctx, tt.args.pStep); got != tt.want {
+			if got := ValidatePlayerStep(tt.args.ctx, tt.args.req); got != tt.want {
 				t.Errorf("ValidatePlayerStep() = %v, want %v", got, tt.want)
 			}
 		})
@@ -435,35 +419,28 @@ func Test_gameConfig_RemoveSelectedStep(t *testing.T) {
 		GameConfig *GameConfig
 	}
 	type args struct {
-		ctx  context.Context
-		step *Step
+		ctx context.Context
+		req *RemoveSelectedStepReq
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   [][]Step
+		name string
+		args args
+		want [][]Step
 	}{
 		{
 			name: "remove step {2,1}",
-			fields: fields{GameConfig: &GameConfig{
-				Dimension: &Dimension{
-					Current: 3,
-					Min:     3,
-					Max:     25,
-				},
-				AvailableSteps: [][]*Step{
-					{{0, 0}, {1, 0}, {2, 0}},
-					{{0, 1}, {1, 1}, {2, 1}},
-					{{0, 2}, {1, 2}, {2, 2}},
-				},
-				WinSteps: nil,
-			}},
 			args: args{
 				ctx: context.Background(),
-				step: &Step{
-					CX: 2,
-					CY: 1,
+				req: &RemoveSelectedStepReq{
+					Step: &Step{
+						CX: 2,
+						CY: 1,
+					},
+					AvailableSteps: AvailableSteps{
+						{{0, 0}, {1, 0}, {2, 0}},
+						{{0, 1}, {1, 1}, {2, 1}},
+						{{0, 2}, {1, 2}, {2, 2}},
+					},
 				},
 			},
 			want: [][]Step{
@@ -475,16 +452,11 @@ func Test_gameConfig_RemoveSelectedStep(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g, err := InitGame(context.Background(), tt.fields.GameConfig)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			g.RemoveSelectedStep(tt.args.ctx, tt.args.step)
+			RemoveSelectedStep(tt.args.ctx, tt.args.req)
 
 			var actual [][]Step
 
-			for _, aSteps := range tt.fields.GameConfig.AvailableSteps {
+			for _, aSteps := range tt.args.req.AvailableSteps {
 				var ws []Step
 				for _, as := range aSteps {
 					ws = append(ws, *as)
