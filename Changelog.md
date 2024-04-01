@@ -2,7 +2,7 @@
   - standard init features
 - v1.0.1 (Sun 31 Mar 2024)
   - enhanced dimension's struct by add json form, in order to binding with json post http request field name
-- v1.1.0 (Sun 31 MAr 2024)
+- v1.1.0 (Sun 01 Apr 2024)
   - enhanced features:
     - available steps
     - win steps
