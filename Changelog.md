@@ -18,3 +18,7 @@
   - refactor
     - Remove abstraction layer (interface)
     - add new struct type for result and request
+- v2.0.0 (Mon 01 Apr 2024)
+  - refactor
+    - Remove abstraction layer (interface)
+    - add new struct type for result and request
