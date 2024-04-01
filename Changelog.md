@@ -8,3 +8,5 @@
     - win steps
     - validate player step
     - get actual positions
+- v1.1.1 (Sun 01 Apr 2024)
+  - refactor (move `Console Play` to example)
