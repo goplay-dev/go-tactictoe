@@ -43,6 +43,6 @@ type ValidateStepReq struct {
 
 type GameConfig struct {
 	Dimension      *Dimension
-	AvailableSteps []*Step
+	AvailableSteps [][]*Step
 	WinSteps       [][]*Step
 }

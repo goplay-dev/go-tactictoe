@@ -1,0 +1,10 @@
+- v1.0.0 (Sun 30 Mar 2024)
+  - standard init features
+- v1.0.1 (Sun 31 Mar 2024)
+  - enhanced dimension's struct by add json form, in order to binding with json post http request field name
+- v1.1.0 (Sun 31 MAr 2024)
+  - enhanced features:
+    - available steps
+    - win steps
+    - validate player step
+    - get actual positions
