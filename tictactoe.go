@@ -7,9 +7,9 @@ import (
 
 type InitGameConfig interface {
 	ValidatePlayerStep(ctx context.Context, pStep *playerStep) bool
-	RemoveSelectedStep(ctx context.Context, index int)
+	RemoveSelectedStep(ctx context.Context, step *Step)
 	SaveStep(ctx context.Context, pStep *playerStep, playerSteps map[player][]*Step)
-	GetActualPos(ctx context.Context) []string
+	GetActualPos(ctx context.Context) [][]string
 	ValidateStep(ctx context.Context, req *ValidateStepReq) bool
 
 	CheckingIsStepObtained(ctx context.Context, pStep *playerStep, playerSteps map[player][]*Step) bool
@@ -34,13 +34,16 @@ func InitGame(ctx context.Context, config *GameConfig) (InitGameConfig, error) {
 	return &gameConfig{config}, nil
 }
 
-func SetupAvailableSteps(ctx context.Context, currDimension int32) []*Step {
-	var aSteps []*Step
+func SetupAvailableSteps(ctx context.Context, currDimension int32) [][]*Step {
+	var aSteps [][]*Step
 
 	for cy := int32(0); cy < currDimension; cy++ {
+		var aStep []*Step
 		for cx := int32(0); cx < currDimension; cx++ {
-			aSteps = append(aSteps, &Step{CX: cx, CY: cy})
+			aStep = append(aStep, &Step{CX: cx, CY: cy})
 		}
+
+		aSteps = append(aSteps, aStep)
 	}
 
 	return aSteps
@@ -61,15 +64,13 @@ func SetupHorWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
 	var hWinSteps [][]*Step
 	var currDimension = config.Dimension.Current
 	var availableSteps = config.AvailableSteps
-	var cyLimit = (currDimension * currDimension) - (currDimension - 1)
 
-	for cy := int32(0); cy < cyLimit; cy += currDimension {
-		var hSteps []*Step
-		for cx := cy; cx < cy+currDimension; cx++ {
-			hSteps = append(hSteps, availableSteps[cx])
+	for cy := int32(0); cy < currDimension; cy++ {
+		var hWinStep []*Step
+		for cx := int32(0); cx < currDimension; cx++ {
+			hWinStep = append(hWinStep, availableSteps[cy][cx])
 		}
-
-		hWinSteps = append(hWinSteps, hSteps)
+		hWinSteps = append(hWinSteps, hWinStep)
 	}
 
 	return hWinSteps
@@ -79,12 +80,11 @@ func SetupVerWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
 	var vWinSteps [][]*Step
 	var currDimension = config.Dimension.Current
 	var availableSteps = config.AvailableSteps
-	var cyLimit = (currDimension * currDimension) - (currDimension - 1)
 
 	for cx := int32(0); cx < currDimension; cx++ {
 		var vSteps []*Step
-		for cy := cx; cy < cyLimit+cx; cy += currDimension {
-			vSteps = append(vSteps, availableSteps[cy])
+		for cy := int32(0); cy < currDimension; cy++ {
+			vSteps = append(vSteps, availableSteps[cy][cx])
 		}
 
 		vWinSteps = append(vWinSteps, vSteps)
@@ -100,8 +100,8 @@ func SetupLDiagWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
 	var currDimension = config.Dimension.Current
 	var availableSteps = config.AvailableSteps
 
-	for ld := int32(0); ld < currDimension*currDimension; ld += currDimension + 1 {
-		ldWinSteps = append(ldWinSteps, availableSteps[ld])
+	for ld := int32(0); ld < currDimension; ld++ {
+		ldWinSteps = append(ldWinSteps, availableSteps[ld][ld])
 	}
 
 	return append(dWinSteps, ldWinSteps)
@@ -111,42 +111,41 @@ func SetupRDiagWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
 	var dWinSteps [][]*Step
 	var ldWinSteps []*Step
 	var currDimension = config.Dimension.Current
-	var ldLimit = (currDimension * currDimension) - (currDimension - 1)
 	var availableSteps = config.AvailableSteps
 
-	for ld := currDimension - 1; ld < ldLimit; ld += currDimension - 1 {
-		ldWinSteps = append(ldWinSteps, availableSteps[ld])
+	for ld := currDimension - 1; ld >= 0; ld-- {
+		ldWinSteps = append(ldWinSteps, availableSteps[(currDimension-1)-ld][ld])
 	}
 
 	return append(dWinSteps, ldWinSteps)
 }
 
 func (g *gameConfig) ValidatePlayerStep(ctx context.Context, pStep *playerStep) bool {
-	for index, availStep := range g.AvailableSteps {
-		if g.ValidateStep(ctx, &ValidateStepReq{
-			Step1: pStep.Step,
-			Step2: availStep,
-		}) {
-			g.RemoveSelectedStep(ctx, index)
-			return true
-		}
+	if g.ValidateStep(ctx, &ValidateStepReq{
+		Step1: pStep.Step,
+		Step2: g.AvailableSteps[pStep.Step.CY][pStep.Step.CX],
+	}) {
+		g.RemoveSelectedStep(ctx, pStep.Step)
+		return true
 	}
 
 	return false
 }
 
-func (g *gameConfig) RemoveSelectedStep(ctx context.Context, index int) {
-	g.AvailableSteps = append(g.AvailableSteps[:index], g.AvailableSteps[index+1:]...)
+func (g *gameConfig) RemoveSelectedStep(ctx context.Context, step *Step) {
+	g.AvailableSteps[step.CY] = append(g.AvailableSteps[step.CY][:step.CX], g.AvailableSteps[step.CY][step.CX+1:]...)
 }
 
 func (g *gameConfig) SaveStep(ctx context.Context, pStep *playerStep, playerSteps map[player][]*Step) {
 	playerSteps[*pStep.Player] = append(playerSteps[*pStep.Player], pStep.Step)
 }
 
-func (g *gameConfig) GetActualPos(ctx context.Context) []string {
-	var positions []string
+func (g *gameConfig) GetActualPos(ctx context.Context) [][]string {
+	var positions [][]string
 
 	for cy := 0; cy < int(g.Dimension.Current); cy++ {
+		var position []string
+
 		for cx := 0; cx < int(g.Dimension.Current); cx++ {
 			pos := "-"
 
@@ -174,8 +173,10 @@ func (g *gameConfig) GetActualPos(ctx context.Context) []string {
 				}
 			}
 
-			positions = append(positions, pos)
+			position = append(position, pos)
 		}
+
+		positions = append(positions, position)
 	}
 
 	return positions

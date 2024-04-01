@@ -132,11 +132,11 @@ func PrintWinSteps(ctx context.Context, winSteps [][]*Step) {
 	fmt.Println()
 }
 
-func PrintActualPos(ctx context.Context, positions []string, currDimension int32) {
-	for index, pos := range positions {
-		fmt.Print(fmt.Sprintf(" %s ", pos))
-		if int32(index+1)%currDimension == 0 {
-			fmt.Println()
+func PrintActualPos(ctx context.Context, positions [][]string, currDimension int32) {
+	for cy := int32(0); cy < currDimension; cy++ {
+		for cx := int32(0); cx < currDimension; cx++ {
+			fmt.Print(positions[cy][cx])
 		}
+		fmt.Println()
 	}
 }
