@@ -2,40 +2,10 @@ package tictactoe
 
 import (
 	"context"
-	"fmt"
 )
 
-type InitGameConfig interface {
-	ValidatePlayerStep(ctx context.Context, pStep *playerStep) bool
-	RemoveSelectedStep(ctx context.Context, step *Step)
-	SaveStep(ctx context.Context, pStep *playerStep, playerSteps map[player][]*Step)
-	GetActualPos(ctx context.Context) [][]string
-	ValidateStep(ctx context.Context, req *ValidateStepReq) bool
-
-	CheckingIsStepObtained(ctx context.Context, pStep *playerStep, playerSteps map[player][]*Step) bool
-	CheckWinStep(ctx context.Context, pStep *playerStep) bool
-}
-
-type gameConfig struct {
-	*GameConfig
-}
-
-func InitGame(ctx context.Context, config *GameConfig) (InitGameConfig, error) {
-	if config.Dimension.Current < config.Dimension.Min ||
-		config.Dimension.Current > config.Dimension.Max {
-
-		return nil, fmt.Errorf(fmt.Sprintf("dimension must between %d - %d",
-			config.Dimension.Min, config.Dimension.Max))
-	}
-
-	config.AvailableSteps = SetupAvailableSteps(ctx, config.Dimension.Current)
-	config.WinSteps = SetupWinSteps(ctx, config)
-
-	return &gameConfig{config}, nil
-}
-
-func SetupAvailableSteps(ctx context.Context, currDimension int32) [][]*Step {
-	var aSteps [][]*Step
+func SetupAvailableSteps(ctx context.Context, currDimension int32) AvailableSteps {
+	var aSteps AvailableSteps
 
 	for cy := int32(0); cy < currDimension; cy++ {
 		var aStep []*Step
@@ -49,8 +19,8 @@ func SetupAvailableSteps(ctx context.Context, currDimension int32) [][]*Step {
 	return aSteps
 }
 
-func SetupWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
-	var wSteps [][]*Step
+func SetupWinSteps(ctx context.Context, config *GameConfig) WinSteps {
+	var wSteps WinSteps
 
 	wSteps = append(wSteps, SetupHorWinSteps(ctx, config)...)
 	wSteps = append(wSteps, SetupVerWinSteps(ctx, config)...)
@@ -60,8 +30,8 @@ func SetupWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
 	return wSteps
 }
 
-func SetupHorWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
-	var hWinSteps [][]*Step
+func SetupHorWinSteps(ctx context.Context, config *GameConfig) WinSteps {
+	var hWinSteps WinSteps
 	var currDimension = config.Dimension.Current
 	var availableSteps = config.AvailableSteps
 
@@ -76,8 +46,8 @@ func SetupHorWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
 	return hWinSteps
 }
 
-func SetupVerWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
-	var vWinSteps [][]*Step
+func SetupVerWinSteps(ctx context.Context, config *GameConfig) WinSteps {
+	var vWinSteps WinSteps
 	var currDimension = config.Dimension.Current
 	var availableSteps = config.AvailableSteps
 
@@ -93,8 +63,8 @@ func SetupVerWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
 	return vWinSteps
 }
 
-func SetupLDiagWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
-	var dWinSteps [][]*Step
+func SetupLDiagWinSteps(ctx context.Context, config *GameConfig) WinSteps {
+	var dWinSteps WinSteps
 	var ldWinSteps []*Step
 
 	var currDimension = config.Dimension.Current
@@ -107,8 +77,8 @@ func SetupLDiagWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
 	return append(dWinSteps, ldWinSteps)
 }
 
-func SetupRDiagWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
-	var dWinSteps [][]*Step
+func SetupRDiagWinSteps(ctx context.Context, config *GameConfig) WinSteps {
+	var dWinSteps WinSteps
 	var ldWinSteps []*Step
 	var currDimension = config.Dimension.Current
 	var availableSteps = config.AvailableSteps
@@ -120,33 +90,74 @@ func SetupRDiagWinSteps(ctx context.Context, config *GameConfig) [][]*Step {
 	return append(dWinSteps, ldWinSteps)
 }
 
-func (g *gameConfig) ValidatePlayerStep(ctx context.Context, pStep *playerStep) bool {
-	if g.ValidateStep(ctx, &ValidateStepReq{
+func RemoveSelectedStep(ctx context.Context, req *RemoveSelectedStepReq) {
+	availableSteps := req.AvailableSteps
+	step := req.Step
+
+	availableSteps[step.CY] = append(availableSteps[step.CY][:step.CX], availableSteps[step.CY][step.CX+1:]...)
+}
+
+func ValidatePlayerStep(ctx context.Context, req *ValidatePlayerStepReq) bool {
+	pStep := req.PlayerStep
+	availableSteps := req.AvailableSteps
+
+	if ValidateStep(ctx, &ValidateStepReq{
 		Step1: pStep.Step,
-		Step2: g.AvailableSteps[pStep.Step.CY][pStep.Step.CX],
+		Step2: availableSteps[pStep.Step.CY][pStep.Step.CX],
 	}) {
-		g.RemoveSelectedStep(ctx, pStep.Step)
+		RemoveSelectedStep(ctx, &RemoveSelectedStepReq{
+			Step:           req.PlayerStep.Step,
+			AvailableSteps: req.AvailableSteps,
+		})
+
 		return true
 	}
 
 	return false
 }
 
-func (g *gameConfig) RemoveSelectedStep(ctx context.Context, step *Step) {
-	g.AvailableSteps[step.CY] = append(g.AvailableSteps[step.CY][:step.CX], g.AvailableSteps[step.CY][step.CX+1:]...)
+func ValidateStep(ctx context.Context, req *ValidateStepReq) bool {
+	if req.Step1.CX == req.Step2.CX && req.Step1.CY == req.Step2.CY {
+		return true
+	}
+
+	return false
 }
 
-func (g *gameConfig) SaveStep(ctx context.Context, pStep *playerStep, playerSteps map[player][]*Step) {
+func SavePlayerStep(ctx context.Context, req *PlayerStepReq) PlayerSteps {
+	playerSteps := req.PlayerSteps
+	pStep := req.PlayerStep
+
 	playerSteps[*pStep.Player] = append(playerSteps[*pStep.Player], pStep.Step)
+	return playerSteps
 }
 
-func (g *gameConfig) GetActualPos(ctx context.Context) [][]string {
-	var positions [][]string
+func CheckingIsStepObtained(ctx context.Context, req *PlayerStepReq) bool {
+	playerSteps := req.PlayerSteps
+	pStep := req.PlayerStep
 
-	for cy := 0; cy < int(g.Dimension.Current); cy++ {
+	for _, pSteps := range playerSteps[*pStep.Player] {
+		if ValidateStep(ctx, &ValidateStepReq{
+			Step1: pSteps,
+			Step2: pStep.Step,
+		}) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func GetActualPos(ctx context.Context, req *GetActualPosReq) ActualPositions {
+	var positions ActualPositions
+
+	dimension := req.Dimension
+	playerSteps := req.PlayerSteps
+
+	for cy := 0; cy < int(dimension.Current); cy++ {
 		var position []string
 
-		for cx := 0; cx < int(g.Dimension.Current); cx++ {
+		for cx := 0; cx < int(dimension.Current); cx++ {
 			pos := "-"
 
 			stepPoint := &Step{
@@ -157,17 +168,20 @@ func (g *gameConfig) GetActualPos(ctx context.Context) [][]string {
 			playerX := X
 			playerO := O
 
-			isX := g.CheckingIsStepObtained(ctx, &playerStep{
-				Player: &playerX,
-				Step:   stepPoint,
-			}, playerSteps)
+			playerStepReq := &PlayerStepReq{
+				PlayerStep: &PlayerStep{
+					Player: &playerX,
+					Step:   stepPoint,
+				},
+				PlayerSteps: playerSteps,
+			}
+
+			isX := CheckingIsStepObtained(ctx, playerStepReq)
 			if isX {
 				pos = X.String()
 			} else {
-				isO := g.CheckingIsStepObtained(ctx, &playerStep{
-					Player: &playerO,
-					Step:   stepPoint,
-				}, playerSteps)
+				playerStepReq.PlayerStep.Player = &playerO
+				isO := CheckingIsStepObtained(ctx, playerStepReq)
 				if isO {
 					pos = O.String()
 				}
@@ -182,38 +196,21 @@ func (g *gameConfig) GetActualPos(ctx context.Context) [][]string {
 	return positions
 }
 
-func (g *gameConfig) ValidateStep(ctx context.Context, req *ValidateStepReq) bool {
-	if req.Step1.CX == req.Step2.CX && req.Step1.CY == req.Step2.CY {
-		return true
-	}
-
-	return false
-}
-
-func (g *gameConfig) CheckingIsStepObtained(
-	ctx context.Context, pStep *playerStep, playerSteps map[player][]*Step) bool {
-	for _, pSteps := range playerSteps[*pStep.Player] {
-		if g.ValidateStep(ctx, &ValidateStepReq{
-			Step1: pSteps,
-			Step2: pStep.Step,
-		}) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func (g *gameConfig) CheckWinStep(ctx context.Context, pStep *playerStep) bool {
+func CheckWinStep(ctx context.Context, req *CheckWinStepReq) bool {
 	var knownWinSteps []*Step
 
-	for _, winStep := range g.WinSteps {
+	winSteps := req.WinSteps
+	playerSteps := req.PlayerSteps
+	pStep := req.PlayerStep
+	dimension := req.Dimension
+
+	for _, winStep := range winSteps {
 		knownWinSteps = []*Step{}
 		for _, ws := range winStep {
 			var knownPlayerStep *Step
 
 			for _, ps := range playerSteps[*pStep.Player] {
-				if g.ValidateStep(ctx, &ValidateStepReq{
+				if ValidateStep(ctx, &ValidateStepReq{
 					Step1: ws,
 					Step2: ps,
 				}) {
@@ -228,7 +225,7 @@ func (g *gameConfig) CheckWinStep(ctx context.Context, pStep *playerStep) bool {
 			}
 		}
 
-		if len(knownWinSteps) == int(g.Dimension.Current) {
+		if len(knownWinSteps) == int(dimension.Current) {
 			return true
 		}
 	}

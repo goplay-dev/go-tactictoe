@@ -6,12 +6,41 @@ type Dimension struct {
 	Max     int32 `json:"max"`
 }
 
-var playerSteps = map[player][]*Step{}
+type ValidatePlayerStepReq struct {
+	PlayerStep     *PlayerStep
+	AvailableSteps AvailableSteps
+}
 
-type player int32
+type RemoveSelectedStepReq struct {
+	Step           *Step
+	AvailableSteps AvailableSteps
+}
+
+type PlayerStepReq struct {
+	PlayerStep  *PlayerStep
+	PlayerSteps PlayerSteps
+}
+
+type GetActualPosReq struct {
+	Dimension   *Dimension
+	PlayerSteps PlayerSteps
+}
+
+type CheckWinStepReq struct {
+	PlayerStep  *PlayerStep
+	WinSteps    WinSteps
+	PlayerSteps PlayerSteps
+	Dimension   *Dimension
+}
+
+type PlayerSteps map[Player][]*Step
+type AvailableSteps [][]*Step
+type WinSteps [][]*Step
+type Player int32
+type ActualPositions [][]string
 
 const (
-	X player = iota
+	X Player = iota
 	O
 )
 
@@ -20,12 +49,12 @@ type Step struct {
 	CY int32
 }
 
-type playerStep struct {
-	Player *player `json:"user"`
+type PlayerStep struct {
+	Player *Player `json:"user"`
 	Step   *Step   `json:"step"`
 }
 
-func (p player) String() string {
+func (p Player) String() string {
 	switch p {
 	case X:
 		return "X"
@@ -43,6 +72,6 @@ type ValidateStepReq struct {
 
 type GameConfig struct {
 	Dimension      *Dimension
-	AvailableSteps [][]*Step
-	WinSteps       [][]*Step
+	AvailableSteps AvailableSteps
+	WinSteps       WinSteps
 }

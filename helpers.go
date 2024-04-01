@@ -14,7 +14,7 @@ func PrintAvailableSteps(ctx context.Context, availableSteps []*Step) {
 	fmt.Println()
 }
 
-func PrintPlayerSteps(ctx context.Context, player *player, playerSteps map[player][]*Step) {
+func PrintPlayerSteps(ctx context.Context, player *Player, playerSteps PlayerSteps) {
 	fmt.Print(fmt.Sprintf("%s steps: ", player.String()))
 	for _, pStep := range playerSteps[*player] {
 		fmt.Print(fmt.Sprintf("%v, ", pStep))
@@ -23,7 +23,7 @@ func PrintPlayerSteps(ctx context.Context, player *player, playerSteps map[playe
 	fmt.Println()
 }
 
-func PrintWinSteps(ctx context.Context, winSteps [][]*Step) {
+func PrintWinSteps(ctx context.Context, winSteps WinSteps) {
 	fmt.Println("win steps: ")
 	for i, ws := range winSteps {
 		fmt.Print(fmt.Sprintf("%d: ", i))
@@ -36,7 +36,7 @@ func PrintWinSteps(ctx context.Context, winSteps [][]*Step) {
 	fmt.Println()
 }
 
-func PrintActualPos(ctx context.Context, positions [][]string, currDimension int32) {
+func PrintActualPos(ctx context.Context, positions ActualPositions, currDimension int32) {
 	for cy := int32(0); cy < currDimension; cy++ {
 		for cx := int32(0); cx < currDimension; cx++ {
 			fmt.Print(positions[cy][cx])
