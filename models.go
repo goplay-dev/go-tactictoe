@@ -6,63 +6,37 @@ type Dimension struct {
 	Max     int32 `json:"max"`
 }
 
-type ValidatePlayerStepReq struct {
-	PlayerStep     *PlayerStep
-	AvailableSteps AvailableSteps
+type Step struct {
+	CX int32
+	CY int32
 }
 
-type RemoveSelectedStepReq struct {
-	Step           *Step
-	AvailableSteps AvailableSteps
-}
-
-type PlayerStepReq struct {
-	PlayerStep  *PlayerStep
-	PlayerSteps PlayerSteps
-}
-
-type GetActualPosReq struct {
-	Dimension   *Dimension
-	PlayerSteps PlayerSteps
-}
-
-type CheckWinStepReq struct {
-	PlayerStep  *PlayerStep
-	WinSteps    WinSteps
-	PlayerSteps PlayerSteps
-	Dimension   *Dimension
-}
-
-type PlayerSteps map[Player][]*Step
-type AvailableSteps [][]*Step
-type WinSteps [][]*Step
 type Player int32
-type ActualPositions [][]string
+type Players []*Player
+type PlayersList []Players
+type ActualPositions PlayersList
+
+type Steps []*Step
+type StepsList []Steps
+
+type WinPos string
+type WinSteps map[WinPos]StepsList
+
+const (
+	Hor   = WinPos("Hor")
+	Ver   = WinPos("Ver")
+	LDiag = WinPos("LDiag")
+	RDiag = WinPos("RDiag")
+)
 
 const (
 	X Player = iota
 	O
 )
 
-type Step struct {
-	CX int32
-	CY int32
-}
-
-type PlayerStep struct {
-	Player *Player `json:"user"`
+type PlayerStepReq struct {
+	Player *Player `json:"player"`
 	Step   *Step   `json:"step"`
-}
-
-func (p Player) String() string {
-	switch p {
-	case X:
-		return "X"
-	case O:
-		return "O"
-	default:
-		return "-"
-	}
 }
 
 type ValidateStepReq struct {
@@ -71,7 +45,7 @@ type ValidateStepReq struct {
 }
 
 type GameConfig struct {
-	Dimension      *Dimension
-	AvailableSteps AvailableSteps
-	WinSteps       WinSteps
+	*Dimension
+	WinSteps
+	ActualPositions
 }

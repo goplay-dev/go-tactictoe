@@ -22,3 +22,8 @@
   - refactor
     - Remove abstraction layer (interface)
     - add new struct type for result and request
+- v3.0.0 (Thu 04 Apr 2024)
+  - removed available steps 
+  - removed player steps
+  - removed player string marks
+  - simplified validation logic
