@@ -62,7 +62,7 @@ func TestSetupWinSteps(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		game.SetupWinSteps(tt.args.ctx)
+		game.setupWinSteps(tt.args.ctx)
 		actual := map[WinPos][][]Step{
 			Hor:   {},
 			Ver:   {},
@@ -111,7 +111,7 @@ func TestSetupHorWinSteps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			game.SetupHorWinSteps(tt.args.ctx)
+			game.setupHorWinSteps(tt.args.ctx)
 			var actual [][]Step
 
 			for _, aSteps := range game.WinSteps[Hor] {
@@ -155,7 +155,7 @@ func TestSetupVerWinSteps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			game.SetupVerWinSteps(tt.args.ctx)
+			game.setupVerWinSteps(tt.args.ctx)
 			var actual [][]Step
 
 			for _, aSteps := range game.WinSteps[Ver] {
@@ -197,7 +197,7 @@ func TestSetupLDiagWinSteps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			game.SetupLDiagWinSteps(tt.args.ctx)
+			game.setupLDiagWinSteps(tt.args.ctx)
 			var actual [][]Step
 
 			for _, aSteps := range game.WinSteps[LDiag] {
@@ -239,7 +239,7 @@ func TestSetupRDiagWinSteps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			game.SetupRDiagWinSteps(tt.args.ctx)
+			game.setupRDiagWinSteps(tt.args.ctx)
 			var actual [][]Step
 
 			for _, aSteps := range game.WinSteps[RDiag] {
@@ -315,7 +315,7 @@ func Test_gameConfig_ValidateAvailableStep(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			game.ActualPositions = tt.ActualPositions
-			if got := game.ValidateAvailableStep(tt.args.ctx, tt.args.req); got != tt.want {
+			if got := game.validateAvailableStep(tt.args.ctx, tt.args.req); got != tt.want {
 				t.Errorf("ValidatePlayerStep() = %v, want %v", got, tt.want)
 			}
 		})
@@ -345,7 +345,7 @@ func TestGameConfig_SetupActualPos(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			game.SetupActualPos(tt.args.ctx)
+			game.setupActualPos(tt.args.ctx)
 
 			if !reflect.DeepEqual(game.ActualPositions, tt.want) {
 				t.Errorf("the actual not match with expected value,\n"+
@@ -389,7 +389,7 @@ func TestGameConfig_SaveActualPos(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			game.SaveActualPos(tt.args.ctx, tt.args.req)
+			game.saveActualPos(tt.args.ctx, tt.args.req)
 
 			if !reflect.DeepEqual(game.ActualPositions, tt.want) {
 				t.Errorf("the actual not match with expected value,\n"+
@@ -444,7 +444,7 @@ func TestGameConfig_ValidateWinStep(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			game.ActualPositions = tt.actualPositions
-			if got := game.ValidateWinStep(tt.args.ctx, tt.args.player); got != tt.want {
+			if got := game.validateWinStep(tt.args.ctx, tt.args.player); got != tt.want {
 				t.Errorf("CheckingWinStep() = %v, want %v", got, tt.want)
 			}
 		})
