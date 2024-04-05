@@ -261,8 +261,6 @@ func TestSetupRDiagWinSteps(t *testing.T) {
 }
 
 func Test_gameConfig_ValidateAvailableStep(t *testing.T) {
-	playerX := X
-
 	type args struct {
 		ctx  context.Context
 		step *Step
@@ -283,9 +281,9 @@ func Test_gameConfig_ValidateAvailableStep(t *testing.T) {
 				},
 			},
 			ActualPositions: ActualPositions{
-				{nil, nil, nil},
-				{nil, nil, nil},
-				{nil, &playerX, nil},
+				{E.String(), E.String(), E.String()},
+				{E.String(), E.String(), E.String()},
+				{E.String(), X.String(), E.String()},
 			},
 			want: false,
 		},
@@ -299,9 +297,9 @@ func Test_gameConfig_ValidateAvailableStep(t *testing.T) {
 				},
 			},
 			ActualPositions: ActualPositions{
-				{nil, nil, nil},
-				{nil, nil, nil},
-				{nil, nil, nil},
+				{E.String(), E.String(), E.String()},
+				{E.String(), E.String(), E.String()},
+				{E.String(), E.String(), E.String()},
 			},
 			want: true,
 		},
@@ -331,9 +329,9 @@ func TestGameConfig_SetupActualPos(t *testing.T) {
 				ctx: context.Background(),
 			},
 			want: ActualPositions{
-				{nil, nil, nil},
-				{nil, nil, nil},
-				{nil, nil, nil},
+				{E.String(), E.String(), E.String()},
+				{E.String(), E.String(), E.String()},
+				{E.String(), E.String(), E.String()},
 			},
 		},
 	}
@@ -375,9 +373,9 @@ func TestGameConfig_SaveActualPos(t *testing.T) {
 				},
 			},
 			want: ActualPositions{
-				{nil, nil, nil},
-				{nil, nil, nil},
-				{&xPlayer, nil, nil},
+				{E.String(), E.String(), E.String()},
+				{E.String(), E.String(), E.String()},
+				{X.String(), E.String(), E.String()},
 			},
 		},
 	}
@@ -415,9 +413,9 @@ func TestGameConfig_ValidateWinStep(t *testing.T) {
 				player: &playerX,
 			},
 			actualPositions: ActualPositions{
-				{nil, nil, &playerX},
-				{nil, &playerX, nil},
-				{&playerX, nil, nil},
+				{E.String(), E.String(), X.String()},
+				{E.String(), X.String(), E.String()},
+				{X.String(), E.String(), E.String()},
 			},
 			want: true,
 		},
@@ -425,12 +423,12 @@ func TestGameConfig_ValidateWinStep(t *testing.T) {
 			name: "O Not Win yet",
 			args: args{
 				ctx:    context.Background(),
-				player: &playerX,
+				player: &playerO,
 			},
 			actualPositions: ActualPositions{
-				{&playerO, nil, nil},
-				{nil, &playerX, nil},
-				{&playerX, nil, &playerO},
+				{O.String(), E.String(), E.String()},
+				{E.String(), X.String(), E.String()},
+				{X.String(), E.String(), O.String()},
 			},
 			want: false,
 		},

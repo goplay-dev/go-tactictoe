@@ -1,37 +1,31 @@
-package tictactoe
+package main
 
 import (
 	"context"
 	"fmt"
 	"strconv"
 	"strings"
+
+	tictactoe "github.com/michaelwp/go-tactictoe/v3"
 )
 
-func (p Player) String() string {
-	switch p {
-	case X:
-		return "X"
-	case O:
-		return "O"
-	default:
-		return ""
-	}
+func main() {
+	ConsolePlay(context.Background())
 }
 
 func ConsolePlay(ctx context.Context) {
-	var currentPlayer Player
+INITGAME:
+	var currentPlayer tictactoe.Player
 	var stepCoord string
 	var stepCX int32
 	var stepCY int32
-	var dimension = &Dimension{
+	var dimension = &tictactoe.Dimension{
 		Current: 25,
 		Min:     3,
 		Max:     25,
 	}
-	var game = &GameConfig{
-		Dimension:       dimension,
-		WinSteps:        nil,
-		ActualPositions: nil,
+	var game = &tictactoe.GameConfig{
+		Dimension: dimension,
 	}
 
 	fmt.Print(fmt.Sprintf("Input Dimension (%d - %d): ", dimension.Min, dimension.Max))
@@ -41,7 +35,11 @@ func ConsolePlay(ctx context.Context) {
 	fmt.Println("==================================================")
 	fmt.Println()
 
-	game.InitGame(ctx)
+	err := game.InitGame(ctx)
+	if err != nil {
+		fmt.Println(err)
+		goto INITGAME
+	}
 
 INPUTPLAYER:
 	fmt.Print("Input Player (0 or 1): ")
@@ -80,12 +78,12 @@ STEP:
 		goto STEP
 	}
 
-	step := &Step{
+	step := &tictactoe.Step{
 		CX: stepCX,
 		CY: stepCY,
 	}
 
-	valid, win := game.ValidateSteps(ctx, &PlayerStepReq{
+	valid, win := game.ValidateSteps(ctx, &tictactoe.PlayerStepReq{
 		Player: &currentPlayer,
 		Step:   step,
 	})
@@ -94,18 +92,48 @@ STEP:
 		fmt.Println("steps not available !")
 		goto STEP
 	} else if valid {
-		PrintActualPos(ctx, game.ActualPositions, game.Dimension.Current)
 		if win {
+			PrintActualPos(ctx, game.ActualPositions, game.Dimension.Current)
 			fmt.Println(fmt.Sprintf("%s Win !!!", currentPlayer.String()))
 			return
 		}
 	}
 
-	if currentPlayer == X {
-		currentPlayer = O
+	if currentPlayer == tictactoe.X {
+		currentPlayer = tictactoe.O
 	} else {
-		currentPlayer = X
+		currentPlayer = tictactoe.X
 	}
 
 	goto STEP
+}
+
+func PrintActualPos(ctx context.Context, positions tictactoe.ActualPositions, currDimension int32) {
+	for cy := int32(0); cy < currDimension; cy++ {
+		for cx := int32(0); cx < currDimension; cx++ {
+			var mark = positions[cy][cx]
+
+			if mark == tictactoe.E.String() {
+				mark = "-"
+			}
+
+			fmt.Print(fmt.Sprintf("%v ", mark))
+		}
+		fmt.Println()
+	}
+}
+
+func PrintWinSteps(ctx context.Context, winSteps tictactoe.WinSteps) {
+	fmt.Println("win steps: ")
+	i := 0
+	for winPos := range winSteps {
+		i++
+		fmt.Print(fmt.Sprintf("%d: ", i))
+		for _, s := range winPos {
+			fmt.Print(fmt.Sprintf("%v, ", s))
+		}
+		fmt.Println()
+	}
+
+	fmt.Println()
 }

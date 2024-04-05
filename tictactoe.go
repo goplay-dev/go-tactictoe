@@ -158,7 +158,7 @@ func (g *GameConfig) validateStepRange(ctx context.Context, step *Step) bool {
 }
 
 func (g *GameConfig) validateAvailableStep(ctx context.Context, step *Step) bool {
-	return g.ActualPositions[step.CY][step.CX] == nil
+	return g.ActualPositions[step.CY][step.CX] == E.String()
 }
 
 func (g *GameConfig) setupActualPos(ctx context.Context) *GameConfig {
@@ -168,7 +168,7 @@ func (g *GameConfig) setupActualPos(ctx context.Context) *GameConfig {
 	for cy := int32(0); cy < currDimension; cy++ {
 		var actualPosition = make(Players, currDimension)
 		for cx := int32(0); cx < currDimension; cx++ {
-			actualPosition[cx] = nil
+			actualPosition[cx] = E.String()
 		}
 
 		g.ActualPositions[cy] = actualPosition
@@ -178,7 +178,7 @@ func (g *GameConfig) setupActualPos(ctx context.Context) *GameConfig {
 }
 
 func (g *GameConfig) saveActualPos(ctx context.Context, req *PlayerStepReq) *GameConfig {
-	g.ActualPositions[req.Step.CY][req.Step.CX] = req.Player
+	g.ActualPositions[req.Step.CY][req.Step.CX] = req.Player.String()
 	return g
 }
 
@@ -186,7 +186,7 @@ func (g *GameConfig) validateWinStep(ctx context.Context, player *Player) (win b
 	for _, val := range g.WinSteps {
 		for _, pos := range val {
 			for i, step := range pos {
-				if g.ActualPositions[step.CX][step.CY] != player {
+				if g.ActualPositions[step.CX][step.CY] != player.String() {
 					break
 				}
 
