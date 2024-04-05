@@ -1,5 +1,5 @@
 - v1.0.0 (Sun 30 Mar 2024)
-  - standard init features
+  - released init features
 - v1.0.1 (Sun 31 Mar 2024)
   - enhanced dimension's struct by add json form, in order to binding with json post http request field name
 - v1.1.0 (Sun 01 Apr 2024)
@@ -9,21 +9,31 @@
     - validate player step
     - get actual positions
 - v1.1.1 (Mon 01 Apr 2024)
-  - refactor (move `Console Play` to example)
+  - refactored (move `Console Play` to example)
 - v2.0.0-alpha (Mon 01 Apr 2024)
   - refactor
-    - Remove abstraction layer (interface)
-    - add new struct type for result and request
+    - Removed abstraction layer (interface)
+    - added new struct type for result and request
 - v2.0.0-b (Mon 01 Apr 2024)
   - refactor
-    - Remove abstraction layer (interface)
-    - add new struct type for result and request
+    - Removed abstraction layer (interface)
+    - added new struct type for result and request
 - v2.0.0 (Mon 01 Apr 2024)
   - refactor
-    - Remove abstraction layer (interface)
-    - add new struct type for result and request
+    - Removed abstraction layer (interface)
+    - added new struct type for result and request
 - v3.0.0 (Thu 04 Apr 2024)
-  - removed available steps 
-  - removed player steps
-  - removed player string marks
+  - removed:
+    - available steps 
+    - player steps
+    - player string marks
   - simplified validation logic
+- v3.0.1 (Thu 04 Apr 2024)
+  - updated library version
+- v3.1.0 (Thu 05 Apr 2024)
+  - added:
+    - validate current dimension
+    - validate Player
+    - validate StepRange
+  - adjusted request parameter type
+  - fixed PrintActualPos
