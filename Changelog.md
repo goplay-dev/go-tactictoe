@@ -41,3 +41,5 @@
   - refactored example
   - improved ActualPositions
   - added license
+- v3.2.1 (Thu 05 Apr 2024)
+  - added game config validation

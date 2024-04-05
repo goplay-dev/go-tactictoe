@@ -119,9 +119,17 @@ func (g *GameConfig) setupRDiagWinSteps(ctx context.Context) *GameConfig {
 	return g
 }
 
+func (g *GameConfig) validateConfig(ctx context.Context) bool {
+	return g.Dimension != nil && g.WinSteps != nil && g.ActualPositions != nil
+}
+
 func (g *GameConfig) ValidateSteps(ctx context.Context, req *PlayerStepReq) (valid bool, win bool) {
 	valid = false
 	win = false
+
+	if !g.validateConfig(ctx) {
+		return
+	}
 
 	if !g.validatePlayer(ctx, *req.Player) {
 		return
@@ -149,8 +157,11 @@ func (g *GameConfig) validatePlayer(ctx context.Context, player Player) bool {
 }
 
 func (g *GameConfig) validateStepRange(ctx context.Context, step *Step) bool {
-	if step.CY > g.Dimension.Current || step.CX > g.Dimension.Current ||
-		step.CY < 0 || step.CX < 0 {
+	if step.CY > g.Dimension.Current ||
+		step.CX > g.Dimension.Current ||
+		step.CY < 0 ||
+		step.CX < 0 {
+
 		return false
 	}
 
