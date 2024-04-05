@@ -23,7 +23,7 @@ func PrintWinSteps(ctx context.Context, winSteps WinSteps) {
 func PrintActualPos(ctx context.Context, positions ActualPositions, currDimension int32) {
 	for cy := int32(0); cy < currDimension; cy++ {
 		for cx := int32(0); cx < currDimension; cx++ {
-			fmt.Print(*positions[cy][cx])
+			fmt.Print(positions[cy][cx])
 		}
 		fmt.Println()
 	}

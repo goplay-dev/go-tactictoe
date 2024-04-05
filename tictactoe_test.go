@@ -264,8 +264,8 @@ func Test_gameConfig_ValidateAvailableStep(t *testing.T) {
 	playerX := X
 
 	type args struct {
-		ctx context.Context
-		req *PlayerStepReq
+		ctx  context.Context
+		step *Step
 	}
 	tests := []struct {
 		name            string
@@ -277,12 +277,9 @@ func Test_gameConfig_ValidateAvailableStep(t *testing.T) {
 			name: "return false",
 			args: args{
 				ctx: context.Background(),
-				req: &PlayerStepReq{
-					Player: &playerX,
-					Step: &Step{
-						CX: 1,
-						CY: 2,
-					},
+				step: &Step{
+					CX: 1,
+					CY: 2,
 				},
 			},
 			ActualPositions: ActualPositions{
@@ -296,12 +293,9 @@ func Test_gameConfig_ValidateAvailableStep(t *testing.T) {
 			name: "return true",
 			args: args{
 				ctx: context.Background(),
-				req: &PlayerStepReq{
-					Player: &playerX,
-					Step: &Step{
-						CX: 2,
-						CY: 0,
-					},
+				step: &Step{
+					CX: 2,
+					CY: 0,
 				},
 			},
 			ActualPositions: ActualPositions{
@@ -315,7 +309,7 @@ func Test_gameConfig_ValidateAvailableStep(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			game.ActualPositions = tt.ActualPositions
-			if got := game.validateAvailableStep(tt.args.ctx, tt.args.req); got != tt.want {
+			if got := game.validateAvailableStep(tt.args.ctx, tt.args.step); got != tt.want {
 				t.Errorf("ValidatePlayerStep() = %v, want %v", got, tt.want)
 			}
 		})
@@ -446,6 +440,84 @@ func TestGameConfig_ValidateWinStep(t *testing.T) {
 			game.ActualPositions = tt.actualPositions
 			if got := game.validateWinStep(tt.args.ctx, tt.args.player); got != tt.want {
 				t.Errorf("CheckingWinStep() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGameConfig_validatePlayer(t *testing.T) {
+	type args struct {
+		ctx    context.Context
+		player Player
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "validate player O",
+			args: args{
+				ctx:    context.Background(),
+				player: O,
+			},
+			want: true,
+		},
+		{
+			name: "validate unknown player",
+			args: args{
+				ctx:    context.Background(),
+				player: 3,
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := game.validatePlayer(tt.args.ctx, tt.args.player); got != tt.want {
+				t.Errorf("validatePlayer() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGameConfig_validateStepRange(t *testing.T) {
+	type args struct {
+		ctx  context.Context
+		step *Step
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "false step",
+			args: args{
+				ctx: context.Background(),
+				step: &Step{
+					CX: -1,
+					CY: 0,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "true step",
+			args: args{
+				ctx: context.Background(),
+				step: &Step{
+					CX: 1,
+					CY: 2,
+				},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := game.validateStepRange(tt.args.ctx, tt.args.step); got != tt.want {
+				t.Errorf("validateStepRange() = %v, want %v", got, tt.want)
 			}
 		})
 	}
