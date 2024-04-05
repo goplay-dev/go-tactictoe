@@ -37,3 +37,7 @@
     - validate StepRange
   - adjusted request parameter type
   - fixed PrintActualPos
+- v3.2.0 (Thu 05 Apr 2024)
+  - refactored example
+  - improved ActualPositions
+  - added license

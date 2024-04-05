@@ -12,7 +12,8 @@ type Step struct {
 }
 
 type Player int32
-type Players []*Player
+type PlayerMark string
+type Players []PlayerMark
 type PlayersList []Players
 type ActualPositions PlayersList
 
@@ -32,6 +33,7 @@ const (
 const (
 	X Player = iota
 	O
+	E
 )
 
 type PlayerStepReq struct {
@@ -48,4 +50,15 @@ type GameConfig struct {
 	*Dimension
 	WinSteps
 	ActualPositions
+}
+
+func (p Player) String() PlayerMark {
+	switch p {
+	case X:
+		return "X"
+	case O:
+		return "O"
+	default:
+		return ""
+	}
 }
