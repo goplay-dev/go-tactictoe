@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	tictactoe "github.com/michaelwp/go-tactictoe/v3"
+	tictactoe "github.com/goplay-dev/go-tactictoe/v3"
 )
 
 func main() {

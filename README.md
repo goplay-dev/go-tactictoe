@@ -1,16 +1,16 @@
-# TICTACTOE v3.0.0
+# TICTACTOE v3.2.2
 
 Simple golang package/ library for custom tic-tac-toe game
 
 ## Installation
 ```
-go get github.com/michaelwp/go-tactictoe/v3
+go get github.com/goplay-dev/go-tactictoe/v3
 ```
 
 ## Available Api
 
 ```go
-import tictactoe "github.com/michaelwp/go-tactictoe/v3"
+import tictactoe "github.com/goplay-dev/go-tactictoe/v3"
 
 var game = &tictactoe.GameConfig{
     Dimension:       dimension,

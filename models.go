@@ -1,4 +1,4 @@
-package tictactoe
+package go_tictactoe
 
 type Dimension struct {
 	Current int32 `json:"current"`

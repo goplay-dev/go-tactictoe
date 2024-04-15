@@ -43,3 +43,5 @@
   - added license
 - v3.2.1 (Thu 05 Apr 2024)
   - added game config validation
+- v3.2.2
+  - move to new organization repository https://github.com/goplay-dev/go-tactictoe/v3
